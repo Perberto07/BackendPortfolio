@@ -1,5 +1,7 @@
 using Backend.Data;
+using Backend.Services.AuthService;
 using Backend.Services.ContentService;
+using Backend.Services.JWTService;
 using Backend.Services.NewsService;
 using Backend.Services.ProjectService;
 using Microsoft.EntityFrameworkCore;
@@ -27,14 +29,15 @@ builder.Services.AddAuthentication("Bearer")
     });
 
 builder.Services.AddDbContext<DataContext>(options => 
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
        policy =>
        {
-           policy.AllowAnyOrigin() // your React app
+           policy.WithOrigins("https://portfolio-lilac-seven-mk1o21sxnv.vercel.app/",
+                              "http://localhost:65514")
                  .AllowAnyHeader()
                  .AllowAnyMethod();
        });
@@ -47,6 +50,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProjectServ, ProjectServ>();
 builder.Services.AddScoped<IContentServ, ContentServ>();
 builder.Services.AddScoped<INewsServ,  NewsServ>();
+builder.Services.AddScoped<IJWTServ, JWTServ>();
+builder.Services.AddScoped<IAuthServ, AuthService>();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
